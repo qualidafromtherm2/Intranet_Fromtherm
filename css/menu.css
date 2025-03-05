@@ -216,12 +216,12 @@ src: local('Titillium WebLight'),
 /* Hover para a logo */
 .settings:hover,
 .settings:focus {
-  background-image: url("img/logo.png");
-transition: all 0.2s ease-in-out;
+  background-image: url("../img/logo.png");
+  transition: all 0.2s ease-in-out;
 }
 
 .settings:active,
 .settings:focus {
-  background-image: url("img/logo.png");
-transition: all 0.1s ease-in-out;
+  background-image: url("../img/logo.png");
+  transition: all 0.1s ease-in-out;
 }
