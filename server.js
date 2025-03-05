@@ -12,8 +12,8 @@ const OMIE_APP_KEY = '3917057082939';
 const OMIE_APP_SECRET = '11e503358e3ae0bee91053faa1323629';
 
 // Habilita o CORS para todas as origens
-app.use(cors());
-
+//app.use(cors());
+app.use(express.static(path.join(__dirname)));
 // Função para aguardar um tempo em milissegundos
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
