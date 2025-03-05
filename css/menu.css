@@ -121,6 +121,19 @@ border-top: 1px solid #042444;
 text-shadow: 1px 1px 1px #fff;
 }
 
+/* Exemplo de estilos para os botões do menu */
+.main-menu ul li a {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  color: #fff;
+  text-decoration: none;
+}
+
+.main-menu ul li a:hover {
+  background-color: #333;
+}
+
 .main-menu .nav-icon {
 position: relative;
 display: table-cell;

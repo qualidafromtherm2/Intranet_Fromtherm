@@ -1,3 +1,17 @@
+document.getElementById('btnAtualizarCSV').addEventListener('click', async () => {
+  try {
+    const response = await fetch('http://localhost:5001/api/produtos/generate-csv');
+    const result = await response.json();
+    if (result.success) {
+      window.location.reload();
+    } else {
+      alert('Erro ao atualizar CSV.');
+    }
+  } catch (error) {
+    alert('Erro ao atualizar CSV. Verifique o console.');
+  }
+});
+
 let produtosData = [];
 
 async function loadCSV() {
@@ -32,29 +46,26 @@ function searchInCSV(produtos, term) {
 
 // Função para exibir o card expandido (modal) – permanece para exibição do card ao clicar
 function showCardModal(cardElement) {
-    const modal = document.getElementById('cardModal');
-    const modalBody = document.getElementById('cardModalBody');
-    modalBody.innerHTML = "";
-  
-    // Cria um container para o card expandido
-    const container = document.createElement('div');
-    container.className = 'expanded-card-container';
-  
-    // Clona o card original e adiciona ao container
-    const clone = cardElement.cloneNode(true);
-    container.appendChild(clone);
-  
-    // Insere o botão flutuante (se ainda desejar) no container
-    const floatingMenu = createFloatingButtonMenu();
-    container.appendChild(floatingMenu);
-  
-    // Adiciona o container ao corpo do modal e exibe-o
-    modalBody.appendChild(container);
-    modal.style.display = "flex";
-  }
-  
-  
-  
+  const modal = document.getElementById('cardModal');
+  const modalBody = document.getElementById('cardModalBody');
+  modalBody.innerHTML = "";
+
+  // Cria um container para o card expandido
+  const container = document.createElement('div');
+  container.className = 'expanded-card-container';
+
+  // Clona o card original e adiciona ao container
+  const clone = cardElement.cloneNode(true);
+  container.appendChild(clone);
+
+  // Insere o botão flutuante (se ainda desejar) no container
+  const floatingMenu = createFloatingButtonMenu();
+  container.appendChild(floatingMenu);
+
+  // Adiciona o container ao corpo do modal e exibe-o
+  modalBody.appendChild(container);
+  modal.style.display = "flex";
+}
 
 document.querySelector('.card-modal-close').addEventListener('click', function() {
   document.getElementById('cardModal').style.display = "none";
@@ -63,7 +74,6 @@ document.getElementById('cardModal').addEventListener('click', function(e) {
   if (e.target === this) this.style.display = "none";
 });
 
-  
 /**
  * Display search results on the webpage by creating and appending card elements for each result.
  * @param {Array} results - An array of objects representing search results to display.
@@ -148,7 +158,6 @@ document.getElementById('inpt_search').addEventListener('blur', function() {
   }
 });
 
-
 /**
 * Adiciona um ouvinte de evento ao elemento com o id 'btnAtualizarCSV' para manipular um evento de clique.
 * Quando o botão é clicado, ele envia uma solicitação de busca para uma URL especificada para atualizar um arquivo CSV.
@@ -173,47 +182,42 @@ window.onload = async function() {
   produtosData = await loadCSV();
 };
 
-
 function createFloatingButtonMenu() {
-    // Cria o container principal
-    const navDiv = document.createElement('div');
-    navDiv.className = 'nav';
-  
-    // Adicione o HTML interno com os ícones
-    // Pode remover ou adicionar mais <a> conforme sua preferência
-    navDiv.innerHTML = `
-      <a href="#profile" class="nav-item nav-count-1">
-        <i class="ion-ios-person-outline"></i>
+  // Cria o container principal
+  const navDiv = document.createElement('div');
+  navDiv.className = 'nav';
 
-      </a>
-      <a href="#compose" class="nav-item nav-count-2">
-        <i class="ion-ios-compose-outline"></i>
+  // Adicione o HTML interno com os ícones
+  // Pode remover ou adicionar mais <a> conforme sua preferência
+  navDiv.innerHTML = `
+    <a href="#profile" class="nav-item nav-count-1">
+      <i class="ion-ios-person-outline"></i>
+    </a>
+    <a href="#compose" class="nav-item nav-count-2">
+      <i class="ion-ios-compose-outline"></i>
+    </a>
+    <a href="#chats" class="nav-item nav-count-3">
+      <i class="ion-ios-chatboxes-outline"></i>
+    </a>
+    <a href="#alarm" class="nav-item nav-count-4">
+      <i class="ion-ios-alarm-outline"></i>
+    </a>
+    <a href="#toggle" class="mask">
+      <i class="ion-ios-plus-empty"></i>
+    </a>
+  `;
 
-      </a>
-      <a href="#chats" class="nav-item nav-count-3">
-        <i class="ion-ios-chatboxes-outline"></i>
+  // Adiciona o listener para abrir/fechar o menu quando clicar no “+”
+  const maskBtn = navDiv.querySelector('.mask');
+  maskBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    navDiv.classList.toggle('active');
+  });
 
-      </a>
-      <a href="#alarm" class="nav-item nav-count-4">
-        <i class="ion-ios-alarm-outline"></i>
+  return navDiv;
+}
 
-      </a>
-      <a href="#toggle" class="mask">
-        <i class="ion-ios-plus-empty"></i>
-      </a>
-    `;
-  
-    // Adiciona o listener para abrir/fechar o menu quando clicar no “+”
-    const maskBtn = navDiv.querySelector('.mask');
-    maskBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      navDiv.classList.toggle('active');
-    });
-  
-    return navDiv;
-  }
-  
-  const mainMenu = document.querySelector('.main-menu');
+const mainMenu = document.querySelector('.main-menu');
 const searchResults = document.getElementById('searchResults');
 
 // Função que atualiza o left com base no estado do menu
@@ -240,7 +244,3 @@ window.addEventListener('resize', updateSearchResultsLeft);
 
 // Atualiza uma vez ao carregar a página
 updateSearchResultsLeft();
-
-
-
-
