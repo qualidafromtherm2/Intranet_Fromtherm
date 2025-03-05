@@ -62,6 +62,20 @@ iframe {
     outline-width: 0;
 }
 
+/* Altera a borda e o texto do campo de pesquisa para vermelho */
+#inpt_search {
+    border: 2px solid red;
+    color: red;
+}
+
+/* Adiciona um pseudo-elemento com a lupa em vermelho ao label do campo de pesquisa */
+.search-container label.search::before {
+    content: "\f002"; /* Código do ícone de pesquisa do Font Awesome */
+    font-family: FontAwesome;
+    color: red;
+    margin-right: 8px;
+}
+
 #searchResults {
     position: fixed;
     top: 70px;
@@ -319,4 +333,3 @@ iframe {
 
 
 
-  
