@@ -1,6 +1,12 @@
 document.getElementById('btnAtualizarCSV').addEventListener('click', async () => {
   try {
-    const response = await fetch('http://localhost:5001/api/produtos/generate-csv');
+    // Verifica o hostname atual e define o endpoint correspondente.
+    const hostname = window.location.hostname;
+    const endpoint = (hostname === 'localhost' || hostname === '127.0.0.1')
+      ? 'http://localhost:5001/api/produtos/generate-csv'
+      : 'https://intranet-fromtherm.onrender.com/api/produtos/generate-csv';
+      
+    const response = await fetch(endpoint);
     const result = await response.json();
     if (result.success) {
       window.location.reload();
@@ -8,6 +14,7 @@ document.getElementById('btnAtualizarCSV').addEventListener('click', async () =>
       alert('Erro ao atualizar CSV.');
     }
   } catch (error) {
+    console.error(error);
     alert('Erro ao atualizar CSV. Verifique o console.');
   }
 });
