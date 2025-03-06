@@ -134,6 +134,13 @@ text-shadow: 1px 1px 1px #fff;
   background-color: #333;
 }
 
+/* Regra para alterar a cor dos ícones do menu lateral */
+.main-menu ul li a .fa,
+.main-menu ul li a .nav-icon {
+  color: #042444; /* Cor azul */
+  text-shadow: 1px 1px 0 #fff, 2px 2px 1px rgba(0, 0, 0, 0.15); /* Efeito 3D com múltiplas sombras */
+}
+
 .main-menu .nav-icon {
 position: relative;
 display: table-cell;
