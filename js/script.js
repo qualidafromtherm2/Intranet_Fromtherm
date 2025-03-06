@@ -95,19 +95,6 @@ function showCardModal(cardElement, omieData) {
     const dataInclusao = omieData?.info?.dInc || '';
     const dataUltimaAlteracao = omieData?.info?.dAlt || '';
 
-    // "caracteristicas" é array: [{ cNomeCaract, cConteudo }, ...]
-    let caracteristicaTexto = '';
-    let conteudoTexto = '';
-    if (Array.isArray(omieData.caracteristicas) && omieData.caracteristicas.length > 0) {
-      // Exemplo: pegar a primeira
-      caracteristicaTexto = omieData.caracteristicas[0].cNomeCaract || '';
-      conteudoTexto       = omieData.caracteristicas[0].cConteudo   || '';
-      
-      // Ou, se você quiser concatenar todos, algo tipo:
-      // caracteristicaTexto = omieData.caracteristicas.map(c => c.cNomeCaract).join(', ');
-      // conteudoTexto       = omieData.caracteristicas.map(c => c.cConteudo).join(', ');
-    }
-
     // Cria os elementos <p> e preenche
     const unidadeEl = document.createElement('p');
     unidadeEl.innerHTML = `<strong>Unidade:</strong> ${unidade || ''}`;
@@ -123,12 +110,6 @@ function showCardModal(cardElement, omieData) {
 
     const tipoItemEl = document.createElement('p');
     tipoItemEl.innerHTML = `<strong>Tipo Item:</strong> ${tipoItem || ''}`;
-
-    const caracteristicaEl = document.createElement('p');
-    caracteristicaEl.innerHTML = `<strong>Característica:</strong> ${caracteristicaTexto}`;
-
-    const conteudoEl = document.createElement('p');
-    conteudoEl.innerHTML = `<strong>Conteúdo:</strong> ${conteudoTexto}`;
 
     const dataInclusaoEl = document.createElement('p');
     dataInclusaoEl.innerHTML = `<strong>Data de inclusão:</strong> ${dataInclusao}`;
@@ -148,20 +129,75 @@ function showCardModal(cardElement, omieData) {
     const inativoEl = document.createElement('p');
     inativoEl.innerHTML = `<strong>Inativo:</strong> ${inativo || ''}`;
 
-    // Anexa tudo ao .card-info do clone (ou no container)
+    // Anexa esses campos ao .card-info
     clonedCardInfo.appendChild(unidadeEl);
     clonedCardInfo.appendChild(ncmEl);
     clonedCardInfo.appendChild(eanEl);
     clonedCardInfo.appendChild(valorUnitarioEl);
     clonedCardInfo.appendChild(tipoItemEl);
-    clonedCardInfo.appendChild(caracteristicaEl);
-    clonedCardInfo.appendChild(conteudoEl);
     clonedCardInfo.appendChild(dataInclusaoEl);
     clonedCardInfo.appendChild(dataUltAltEl);
     clonedCardInfo.appendChild(descFamiliaEl);
     clonedCardInfo.appendChild(qtdEstoqueEl);
     clonedCardInfo.appendChild(bloqueadoEl);
     clonedCardInfo.appendChild(inativoEl);
+
+    // === Agora criaremos a TABELA de características, APÓS o "Inativo:"
+    if (Array.isArray(omieData.caracteristicas) && omieData.caracteristicas.length > 0) {
+      // Título opcional
+      const caractTitle = document.createElement('p');
+      caractTitle.innerHTML = `<strong>Características:</strong>`;
+      clonedCardInfo.appendChild(caractTitle);
+
+      // Cria a tabela
+      const caractTable = document.createElement('table');
+      caractTable.style.borderCollapse = 'collapse'; // Ajuste no visual se quiser
+      caractTable.style.marginTop = '10px';
+
+      // Cabeçalho (opcional)
+      const thead = document.createElement('thead');
+      const headRow = document.createElement('tr');
+      
+      const thCaract = document.createElement('th');
+      thCaract.textContent = 'Característica';
+      thCaract.style.border = '1px solid #ccc';
+      thCaract.style.padding = '5px';
+
+      const thConteudo = document.createElement('th');
+      thConteudo.textContent = 'Conteúdo';
+      thConteudo.style.border = '1px solid #ccc';
+      thConteudo.style.padding = '5px';
+
+      headRow.appendChild(thCaract);
+      headRow.appendChild(thConteudo);
+      thead.appendChild(headRow);
+      caractTable.appendChild(thead);
+
+      // Corpo da tabela
+      const tbody = document.createElement('tbody');
+
+      omieData.caracteristicas.forEach(caract => {
+        const row = document.createElement('tr');
+
+        const tdCaract = document.createElement('td');
+        tdCaract.textContent = caract.cNomeCaract || '';
+        tdCaract.style.border = '1px solid #ccc';
+        tdCaract.style.padding = '5px';
+
+        const tdConteudo = document.createElement('td');
+        tdConteudo.textContent = caract.cConteudo || '';
+        tdConteudo.style.border = '1px solid #ccc';
+        tdConteudo.style.padding = '5px';
+
+        row.appendChild(tdCaract);
+        row.appendChild(tdConteudo);
+        tbody.appendChild(row);
+      });
+
+      caractTable.appendChild(tbody);
+
+      clonedCardInfo.appendChild(caractTable);
+    }
   }
 
   // Adiciona o clone no container
@@ -177,6 +213,7 @@ function showCardModal(cardElement, omieData) {
   // Exibe o modal
   modal.style.display = "flex";
 }
+
 
 
 document.querySelector('.card-modal-close').addEventListener('click', function() {
