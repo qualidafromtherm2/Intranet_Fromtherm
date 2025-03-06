@@ -196,3 +196,35 @@ app.get('/api/produtos/generate-csv', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
+
+// Novo endpoint para consultar um produto específico pelo "codigo"
+app.get('/api/produtos/detalhes/:codigo', async (req, res) => {
+  try {
+    const { codigo } = req.params; // pega da URL /detalhes/04.MP.N.61016
+
+    // Monta o payload para "ConsultarProduto"
+    const payload = {
+      call: "ConsultarProduto",
+      param: [
+        {
+          codigo: codigo
+        }
+      ],
+      app_key: OMIE_APP_KEY,
+      app_secret: OMIE_APP_SECRET
+    };
+
+    // Faz a requisição à Omie
+    const omieResponse = await axios.post(
+      'https://app.omie.com.br/api/v1/geral/produtos/',
+      payload,
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+
+    // Retorna os dados diretamente ao front-end
+    res.json(omieResponse.data);
+  } catch (error) {
+    console.error("Erro ao consultar produto:", error?.message || error);
+    res.status(500).json({ error: 'Falha ao consultar produto na Omie' });
+  }
+});

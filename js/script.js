@@ -31,21 +31,35 @@ async function loadCSV() {
   }
 }
 
+// Função searchInCSV:
+// Esta função realiza a busca de um termo (term) nos dados do CSV contidos no array "produtos".
+// Ela compara o termo com alguns campos específicos de cada objeto produto (como codigo, codigo_produto, descr_detalhada e descricao)
+// e retorna apenas aqueles produtos que contêm todos os tokens do termo em ao menos um dos campos.
 function searchInCSV(produtos, term) {
+  // Converte o termo de busca para letras minúsculas e divide em tokens (palavras) utilizando espaços como separadores.
   const tokens = term.toLowerCase().split(/\s+/);
+  
+  // Filtra o array de produtos:
+  // Para cada produto, verifica se TODOS os tokens da busca estão presentes em pelo menos um dos campos definidos.
   return produtos.filter(produto => {
+    // Define os campos que serão pesquisados. Caso o campo não exista (undefined ou null), utiliza uma string vazia.
+    // Em seguida, converte cada campo para letras minúsculas para uma comparação "case insensitive".
     const campos = [
       produto.codigo || "",
       produto.codigo_produto || "",
       produto.descr_detalhada || "",
       produto.descricao || ""
     ].map(campo => campo.toLowerCase());
+    
+    // Para o produto atual, verifica se cada token está presente em pelo menos um dos campos.
+    // tokens.every: retorna true somente se todos os tokens satisfazem a condição.
+    // campos.some: verifica se algum dos campos contém (includes) o token.
     return tokens.every(token => campos.some(campo => campo.includes(token)));
   });
 }
 
 // Função para exibir o card expandido (modal) – permanece para exibição do card ao clicar
-function showCardModal(cardElement) {
+function showCardModal(cardElement, omieData) {
   const modal = document.getElementById('cardModal');
   const modalBody = document.getElementById('cardModalBody');
 
@@ -56,66 +70,98 @@ function showCardModal(cardElement) {
   const container = document.createElement('div');
   container.className = 'expanded-card-container';
 
-  // Clona o card original
+  // Clona o card original (se quiser manter a parte visual inicial)
   const clone = cardElement.cloneNode(true);
 
   // Localiza a div.card-info dentro do clone
   const clonedCardInfo = clone.querySelector('.card-info');
-  if (clonedCardInfo) {
-    // Cria os campos adicionais logo abaixo do texto detalhado
-    const unidade = document.createElement('p');
-    unidade.innerHTML = `<strong>Unidade:</strong> ${cardElement.dataset.unidade}`;
 
-    const ncm = document.createElement('p');
-    ncm.innerHTML = `<strong>NCM:</strong> ${cardElement.dataset.ncm}`;
+  if (clonedCardInfo && omieData) {
+    // Extraia os campos da resposta Omie:
+    const {
+      unidade,
+      ncm,
+      ean,
+      valor_unitario,
+      tipoItem,
+      descr_detalhada,
+      descricao_familia,
+      quantidade_estoque,
+      bloqueado,
+      inativo
+    } = omieData;
 
-    const ean = document.createElement('p');
-    ean.innerHTML = `<strong>EAN:</strong> ${cardElement.dataset.ean}`;
+    // A data de inclusão e última alteração vêm de omieData.info (omieData.info.dInc / omieData.info.dAlt):
+    const dataInclusao = omieData?.info?.dInc || '';
+    const dataUltimaAlteracao = omieData?.info?.dAlt || '';
 
-    const valorUnitario = document.createElement('p');
-    valorUnitario.innerHTML = `<strong>Valor Unitário:</strong> ${cardElement.dataset.valorUnitario}`;
+    // "caracteristicas" é array: [{ cNomeCaract, cConteudo }, ...]
+    let caracteristicaTexto = '';
+    let conteudoTexto = '';
+    if (Array.isArray(omieData.caracteristicas) && omieData.caracteristicas.length > 0) {
+      // Exemplo: pegar a primeira
+      caracteristicaTexto = omieData.caracteristicas[0].cNomeCaract || '';
+      conteudoTexto       = omieData.caracteristicas[0].cConteudo   || '';
+      
+      // Ou, se você quiser concatenar todos, algo tipo:
+      // caracteristicaTexto = omieData.caracteristicas.map(c => c.cNomeCaract).join(', ');
+      // conteudoTexto       = omieData.caracteristicas.map(c => c.cConteudo).join(', ');
+    }
 
-    const tipoItem = document.createElement('p');
-    tipoItem.innerHTML = `<strong>Tipo Item:</strong> ${cardElement.dataset.tipoItem}`;
+    // Cria os elementos <p> e preenche
+    const unidadeEl = document.createElement('p');
+    unidadeEl.innerHTML = `<strong>Unidade:</strong> ${unidade || ''}`;
 
-    const caracteristica = document.createElement('p');
-    caracteristica.innerHTML = `<strong>Característica:</strong> ${cardElement.dataset.caracteristica}`;
+    const ncmEl = document.createElement('p');
+    ncmEl.innerHTML = `<strong>NCM:</strong> ${ncm || ''}`;
 
-    const conteudo = document.createElement('p');
-    conteudo.innerHTML = `<strong>Conteúdo:</strong> ${cardElement.dataset.conteudo}`;
+    const eanEl = document.createElement('p');
+    eanEl.innerHTML = `<strong>EAN:</strong> ${ean || ''}`;
 
-    const dataInclusao = document.createElement('p');
-    dataInclusao.innerHTML = `<strong>Data de inclusão:</strong> ${cardElement.dataset.dataInclusao}`;
+    const valorUnitarioEl = document.createElement('p');
+    valorUnitarioEl.innerHTML = `<strong>Valor Unitário:</strong> ${valor_unitario || ''}`;
 
-    const dataUltimaAlteracao = document.createElement('p');
-    dataUltimaAlteracao.innerHTML = `<strong>Data da última alteração:</strong> ${cardElement.dataset.dataUltimaAlteracao}`;
+    const tipoItemEl = document.createElement('p');
+    tipoItemEl.innerHTML = `<strong>Tipo Item:</strong> ${tipoItem || ''}`;
 
-    const descricaoFamilia = document.createElement('p');
-    descricaoFamilia.innerHTML = `<strong>Descrição da família:</strong> ${cardElement.dataset.descricaoFamilia}`;
+    const caracteristicaEl = document.createElement('p');
+    caracteristicaEl.innerHTML = `<strong>Característica:</strong> ${caracteristicaTexto}`;
 
-    const quantidadeEstoque = document.createElement('p');
-    quantidadeEstoque.innerHTML = `<strong>Quantidade no estoque:</strong> ${cardElement.dataset.quantidadeEstoque}`;
+    const conteudoEl = document.createElement('p');
+    conteudoEl.innerHTML = `<strong>Conteúdo:</strong> ${conteudoTexto}`;
 
-    const bloqueado = document.createElement('p');
-    bloqueado.innerHTML = `<strong>Bloqueado:</strong> ${cardElement.dataset.bloqueado}`;
+    const dataInclusaoEl = document.createElement('p');
+    dataInclusaoEl.innerHTML = `<strong>Data de inclusão:</strong> ${dataInclusao}`;
 
-    const inativo = document.createElement('p');
-    inativo.innerHTML = `<strong>Inativo:</strong> ${cardElement.dataset.inativo}`;
+    const dataUltAltEl = document.createElement('p');
+    dataUltAltEl.innerHTML = `<strong>Data da última alteração:</strong> ${dataUltimaAlteracao}`;
 
-    // Anexa tudo ao .card-info do clone
-    clonedCardInfo.appendChild(unidade);
-    clonedCardInfo.appendChild(ncm);
-    clonedCardInfo.appendChild(ean);
-    clonedCardInfo.appendChild(valorUnitario);
-    clonedCardInfo.appendChild(tipoItem);
-    clonedCardInfo.appendChild(caracteristica);
-    clonedCardInfo.appendChild(conteudo);
-    clonedCardInfo.appendChild(dataInclusao);
-    clonedCardInfo.appendChild(dataUltimaAlteracao);
-    clonedCardInfo.appendChild(descricaoFamilia);
-    clonedCardInfo.appendChild(quantidadeEstoque);
-    clonedCardInfo.appendChild(bloqueado);
-    clonedCardInfo.appendChild(inativo);
+    const descFamiliaEl = document.createElement('p');
+    descFamiliaEl.innerHTML = `<strong>Descrição da família:</strong> ${descricao_familia || ''}`;
+
+    const qtdEstoqueEl = document.createElement('p');
+    qtdEstoqueEl.innerHTML = `<strong>Quantidade no estoque:</strong> ${quantidade_estoque || ''}`;
+
+    const bloqueadoEl = document.createElement('p');
+    bloqueadoEl.innerHTML = `<strong>Bloqueado:</strong> ${bloqueado || ''}`;
+
+    const inativoEl = document.createElement('p');
+    inativoEl.innerHTML = `<strong>Inativo:</strong> ${inativo || ''}`;
+
+    // Anexa tudo ao .card-info do clone (ou no container)
+    clonedCardInfo.appendChild(unidadeEl);
+    clonedCardInfo.appendChild(ncmEl);
+    clonedCardInfo.appendChild(eanEl);
+    clonedCardInfo.appendChild(valorUnitarioEl);
+    clonedCardInfo.appendChild(tipoItemEl);
+    clonedCardInfo.appendChild(caracteristicaEl);
+    clonedCardInfo.appendChild(conteudoEl);
+    clonedCardInfo.appendChild(dataInclusaoEl);
+    clonedCardInfo.appendChild(dataUltAltEl);
+    clonedCardInfo.appendChild(descFamiliaEl);
+    clonedCardInfo.appendChild(qtdEstoqueEl);
+    clonedCardInfo.appendChild(bloqueadoEl);
+    clonedCardInfo.appendChild(inativoEl);
   }
 
   // Adiciona o clone no container
@@ -211,14 +257,33 @@ function displayResults(results) {
     card.dataset.inativo = result.inativo || '';
 
     // Evento para exibir o modal ao clicar
-    card.addEventListener('click', function() {
-      showCardModal(card);
+    card.addEventListener('click', async function() {
+      const codigoProduto = result.codigo; // Exemplo: "04.MP.N.61016"
+      // Busque dados detalhados da Omie
+      const omieData = await fetchDetalhes(codigoProduto);
+      // Agora sim, abra o modal com esses dados
+      showCardModal(card, omieData);
     });
 
     cardsContainer.appendChild(card);
   });
 
   resultsContainer.appendChild(cardsContainer);
+}
+
+
+async function fetchDetalhes(codigo) {
+  try {
+    const response = await fetch(`/api/produtos/detalhes/${encodeURIComponent(codigo)}`);
+    if (!response.ok) {
+      throw new Error('Erro ao consultar detalhes do produto');
+    }
+    const data = await response.json();
+    return data; // Retorna o objeto que veio da Omie
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
 }
 
 document.getElementById('inpt_search').addEventListener('input', function() {
@@ -245,29 +310,7 @@ document.getElementById('inpt_search').addEventListener('blur', function() {
   }
 });
 
-/**
-* Adiciona um ouvinte de evento ao elemento com o id 'btnAtualizarCSV' para manipular um evento de clique.
-* Quando o botão é clicado, ele envia uma solicitação de busca para uma URL especificada para atualizar um arquivo CSV.
-* Se a solicitação for bem-sucedida, ele recarrega a página. Se houver um erro, ele exibe uma mensagem de alerta.
-* @returns Nenhum
- */
-document.getElementById('btnAtualizarCSV').addEventListener('click', async () => {
-  try {
-    const response = await fetch('https://intranet-fromtherm.onrender.com/api/produtos/generate-csv'); // Substitua pelo seu domínio no Render
-    const result = await response.json();
-    if (result.success) {
-      window.location.reload();
-    } else {
-      alert('Erro ao atualizar CSV.');
-    }
-  } catch (error) {
-    alert('Erro ao atualizar CSV. Verifique o console.');
-  }
-});
 
-window.onload = async function() {
-  produtosData = await loadCSV();
-};
 
 function createFloatingButtonMenu() {
   // Cria o container principal
@@ -331,3 +374,9 @@ window.addEventListener('resize', updateSearchResultsLeft);
 
 // Atualiza uma vez ao carregar a página
 updateSearchResultsLeft();
+
+// Carrega o CSV e popula a variável produtosData ao carregar a página
+(async function initialize() {
+  produtosData = await loadCSV();
+  console.log("produtosData carregados:", produtosData);
+})();
