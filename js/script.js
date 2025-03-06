@@ -1,6 +1,6 @@
 document.getElementById('btnAtualizarCSV').addEventListener('click', async () => {
   try {
-    const response = await fetch('http://localhost:5001/api/produtos/generate-csv');
+    const response = await fetch('https://intranet-fromtherm.onrender.com/api/produtos/generate-csv');
     const result = await response.json();
     if (result.success) {
       window.location.reload();
