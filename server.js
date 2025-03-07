@@ -1,5 +1,5 @@
 const express = require('express');
-const axios = require('axios');
+// const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors'); // Importa o módulo CORS
@@ -228,3 +228,47 @@ app.get('/api/produtos/detalhes/:codigo', async (req, res) => {
     res.status(500).json({ error: 'Falha ao consultar produto na Omie' });
   }
 });
+
+app.post('/api/produtos/alterar', async (req, res) => {
+  try {
+    // O corpo da requisição deverá conter os campos editados
+    const camposEdicao = req.body;
+    // Chama a função que envia a alteração para a Omie
+    await salvarAlteracoesOmie(camposEdicao);
+    res.json({ success: true, message: 'Produto atualizado com sucesso!' });
+  } catch (error) {
+    console.error("Erro ao alterar produto:", error?.message || error);
+    res.status(500).json({ success: false, error: 'Erro ao alterar produto na Omie' });
+  }
+});
+
+const axios = require('axios'); // no topo do server.js
+
+async function salvarAlteracoesOmie(camposEdicao) {
+  try {
+    const payload = {
+      call: "AlterarProduto",
+      app_key: OMIE_APP_KEY,
+      app_secret: OMIE_APP_SECRET,
+      param: [ camposEdicao ]
+    };
+
+    // AQUI: Loga no console o que será enviado
+    console.log("Enviando payload para Omie:", JSON.stringify(payload, null, 2));
+
+    const response = await axios.post(
+      'https://app.omie.com.br/api/v1/geral/produtos/',
+      payload,
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+
+    const data = response.data;
+    console.log("Resposta da Omie:", data);
+    // ... resto do código ...
+  } catch (error) {
+    console.error("Erro na chamada Omie:", error.message);
+    throw error;
+  }
+}
+
+
