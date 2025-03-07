@@ -271,4 +271,32 @@ async function salvarAlteracoesOmie(camposEdicao) {
   }
 }
 
+// Endpoint para consultar a posição de estoque via Omie
+app.post('/api/produtos/estoque', async (req, res) => {
+  try {
+    const { codigo, data } = req.body;
+    const payload = {
+      call: "PosicaoEstoque",
+      param: [
+        {
+          cod_int: codigo,
+          data: data
+        }
+      ],
+      app_key: OMIE_APP_KEY,
+      app_secret: OMIE_APP_SECRET
+    };
+
+    const omieResp = await axios.post(
+      'https://app.omie.com.br/api/v1/estoque/consulta/',
+      payload,
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+    
+    return res.json(omieResp.data); // Retorna o objeto com cmc, saldo, reservado, fisico, etc.
+  } catch (error) {
+    console.error("Erro ao consultar PosicaoEstoque:", error.message);
+    return res.status(500).json({ error: 'Falha ao consultar PosicaoEstoque na Omie' });
+  }
+});
 
