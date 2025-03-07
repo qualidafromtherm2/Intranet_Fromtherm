@@ -320,4 +320,23 @@ iframe {
   }
 
 
-
+  .expanded-card-container {
+    /* se quiser fundo, padding etc. */
+  }
+  
+  .expanded-card-container .modal-photo img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+  
+  /* Ajustes nas colunas */
+  .modal-photo-col, .modal-data-col {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .modal-data-col {
+    /* caso queira rolagem vertical, etc. */
+  }
+  

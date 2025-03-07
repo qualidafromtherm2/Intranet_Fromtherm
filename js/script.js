@@ -58,38 +58,35 @@ function searchInCSV(produtos, term) {
   });
 }
 
-/** Mostra o modal com detalhes do produto (dados Omie) */
 /** 
  * Exibe o modal com os dados do produto vindos da Omie (omieData).
  * Ao clonar o cardElement, preserva apenas a imagem (.card-top) e o <h2> (código).
  * Remove quaisquer <p> já existentes em .card-info (descrições antigas).
  * Cria novos <p> para cada campo do omieData.
+ * Em vez de usar "valor_unitario" do ConsultarProduto,
+ * faz nova requisição ao endpoint 'PosicaoEstoque' e exibe "cmc" como Valor Unitário,
+ * além de saldo, reservado e fisico.
  */
-function showCardModal(cardElement, omieData) {
+async function showCardModal(cardElement, omieData) {
   const modal = document.getElementById('cardModal');
   const modalBody = document.getElementById('cardModalBody');
   modalBody.innerHTML = "";
 
-  // Cria um container principal para o modal
   const container = document.createElement('div');
   container.className = 'expanded-card-container';
 
-  // Clona o card original
+  // Clona o card original e localiza .card-info e <h2>
   const clone = cardElement.cloneNode(true);
-
-  // Localiza .card-info e <h2>
   const clonedCardInfo = clone.querySelector('.card-info');
-  const h2title = clonedCardInfo ? clonedCardInfo.querySelector('h2') : null;
-
-  // Se por alguma razão não encontrou .card-info, apenas anexa o clone e sai
-  if (!clonedCardInfo || !h2title) {
+  if (!clonedCardInfo) {
     container.appendChild(clone);
     modalBody.appendChild(container);
     modal.style.display = "flex";
     return;
   }
+  const h2title = clonedCardInfo.querySelector('h2');
 
-  // Remove todos os filhos de .card-info EXCETO o <h2> (que contém o código)
+  // Remove todos os <p> existentes, mantendo só o <h2>
   const children = [...clonedCardInfo.children];
   for (const child of children) {
     if (child !== h2title) {
@@ -97,100 +94,142 @@ function showCardModal(cardElement, omieData) {
     }
   }
 
-  // Agora, .card-info só tem o <h2> (código) e .card-top (imagem) segue no clone
-
-  // Se temos dados da Omie, cria novos <p> com base em omieData
+  // Exibe os campos que ficam fora das colunas (descrição principal)
   if (omieData) {
-    const {
-      descricao,
-      descr_detalhada,
-      unidade,
-      ncm,
-      ean,
-      valor_unitario,
-      tipoItem,
-      descricao_familia,
-      quantidade_estoque,
-      bloqueado,
-      inativo
-    } = omieData;
+    const descEl = document.createElement('p');
+    descEl.innerHTML = `<strong>Descrição:</strong> ${omieData.descricao || ''}`;
+    clonedCardInfo.appendChild(descEl);
 
-    const dataInclusao = omieData?.info?.dInc || '';
-    const dataUltAlt   = omieData?.info?.dAlt || '';
-
-    // ========== Descrição ==========
-    const descricaoEl = document.createElement('p');
-    descricaoEl.innerHTML = `<strong>Descrição:</strong> ${descricao || ''}`;
-    clonedCardInfo.appendChild(descricaoEl);
-
-    // ========== Descrição Detalhada ==========
     const detalhadaEl = document.createElement('p');
-    detalhadaEl.innerHTML = `<strong>Descrição detalhada:</strong> ${descr_detalhada || ''}`;
+    detalhadaEl.innerHTML = `<strong>Descrição detalhada:</strong> ${omieData.descr_detalhada || ''}`;
     clonedCardInfo.appendChild(detalhadaEl);
 
-    // ========== Unidade ==========
+    // Cria o contêiner das duas colunas
+    const columnsContainer = document.createElement('div');
+    columnsContainer.className = 'modal-columns';
+    columnsContainer.style.display = 'flex';
+    columnsContainer.style.gap = '20px';
+    columnsContainer.style.marginTop = '10px';
+
+    // Cria a coluna da esquerda e insere os campos
+    const leftCol = document.createElement('div');
+    leftCol.className = 'modal-column left';
+    leftCol.style.flex = '1';
+    
+    // Unidade (para edição via select)
     const unidadeEl = document.createElement('p');
-    unidadeEl.innerHTML = `<strong>Unidade:</strong> ${unidade || ''}`;
-    clonedCardInfo.appendChild(unidadeEl);
+    unidadeEl.dataset.field = 'unidade';
+    unidadeEl.innerHTML = `<strong>Unidade:</strong> ${omieData.unidade || ''}`;
+    leftCol.appendChild(unidadeEl);
 
-    // ========== NCM ==========
+    // NCM
     const ncmEl = document.createElement('p');
-    ncmEl.innerHTML = `<strong>NCM:</strong> ${ncm || ''}`;
-    clonedCardInfo.appendChild(ncmEl);
+    ncmEl.innerHTML = `<strong>NCM:</strong> ${omieData.ncm || ''}`;
+    leftCol.appendChild(ncmEl);
 
-    // ========== EAN ==========
+    // EAN
     const eanEl = document.createElement('p');
-    eanEl.innerHTML = `<strong>EAN:</strong> ${ean || ''}`;
-    clonedCardInfo.appendChild(eanEl);
+    eanEl.innerHTML = `<strong>EAN:</strong> ${omieData.ean || ''}`;
+    leftCol.appendChild(eanEl);
 
-    // ========== Valor Unitário ==========
-    const valorEl = document.createElement('p');
-    valorEl.innerHTML = `<strong>Valor Unitário:</strong> ${valor_unitario || ''}`;
-    clonedCardInfo.appendChild(valorEl);
-
-    // ========== Tipo Item ==========
+    // Tipo Item
     const tipoItemEl = document.createElement('p');
-    tipoItemEl.innerHTML = `<strong>Tipo Item:</strong> ${tipoItem || ''}`;
-    clonedCardInfo.appendChild(tipoItemEl);
+    tipoItemEl.innerHTML = `<strong>Tipo Item:</strong> ${omieData.tipoItem || ''}`;
+    leftCol.appendChild(tipoItemEl);
 
-    // ========== Data de inclusão ==========
+    // Data de inclusão
     const dataInclEl = document.createElement('p');
-    dataInclEl.innerHTML = `<strong>Data de inclusão:</strong> ${dataInclusao}`;
-    clonedCardInfo.appendChild(dataInclEl);
+    dataInclEl.innerHTML = `<strong>Data de inclusão:</strong> ${omieData?.info?.dInc || ''}`;
+    leftCol.appendChild(dataInclEl);
 
-    // ========== Data da última alteração ==========
+    // Data da última alteração
     const dataAltEl = document.createElement('p');
-    dataAltEl.innerHTML = `<strong>Data da última alteração:</strong> ${dataUltAlt}`;
-    clonedCardInfo.appendChild(dataAltEl);
+    dataAltEl.innerHTML = `<strong>Data da última alteração:</strong> ${omieData?.info?.dAlt || ''}`;
+    leftCol.appendChild(dataAltEl);
 
-    // ========== Descrição da família ==========
+    // Descrição da família
     const familiaEl = document.createElement('p');
-    familiaEl.innerHTML = `<strong>Descrição da família:</strong> ${descricao_familia || ''}`;
-    clonedCardInfo.appendChild(familiaEl);
+    familiaEl.innerHTML = `<strong>Descrição da família:</strong> ${omieData.descricao_familia || ''}`;
+    leftCol.appendChild(familiaEl);
 
-    // ========== Quantidade no estoque ==========
-    const estoqueEl = document.createElement('p');
-    estoqueEl.innerHTML = `<strong>Quantidade no estoque:</strong> ${quantidade_estoque || ''}`;
-    clonedCardInfo.appendChild(estoqueEl);
+    // Cria a coluna da direita e insere os campos
+    const rightCol = document.createElement('div');
+    rightCol.className = 'modal-column right';
+    rightCol.style.flex = '1';
 
-    // ========== Bloqueado (campo especial) ==========
+    // Bloqueado (para edição via select)
     const bloqueadoEl = document.createElement('p');
     bloqueadoEl.dataset.field = 'bloqueado';
-    bloqueadoEl.innerHTML = `<strong>Bloqueado:</strong> ${bloqueado || ''}`;
-    clonedCardInfo.appendChild(bloqueadoEl);
+    bloqueadoEl.innerHTML = `<strong>Bloqueado:</strong> ${omieData.bloqueado || ''}`;
+    rightCol.appendChild(bloqueadoEl);
 
-    // ========== Inativo (campo especial) ==========
+    // Inativo (para edição via select)
     const inativoEl = document.createElement('p');
     inativoEl.dataset.field = 'inativo';
-    inativoEl.innerHTML = `<strong>Inativo:</strong> ${inativo || ''}`;
-    clonedCardInfo.appendChild(inativoEl);
+    inativoEl.innerHTML = `<strong>Inativo:</strong> ${omieData.inativo || ''}`;
+    rightCol.appendChild(inativoEl);
 
-    // ========== Características (tabela) ==========
-    if (Array.isArray(omieData.caracteristicas) && omieData.caracteristicas.length > 0) {
-      const caractTable = document.createElement('table');
-      caractTable.style.borderCollapse = 'collapse';
-      caractTable.style.marginTop = '10px';
+    // Campos vindos de fetchPosicaoEstoque:
+    try {
+      const hoje = new Date();
+      const dia   = String(hoje.getDate()).padStart(2, '0');
+      const mes   = String(hoje.getMonth() + 1).padStart(2, '0');
+      const ano   = hoje.getFullYear();
+      const dataFormato = `${dia}/${mes}/${ano}`;
 
+      const codigoProd = omieData.codigo;
+      const estoqueData = await fetchPosicaoEstoque(codigoProd, dataFormato);
+
+      if (estoqueData && estoqueData.codigo_status === '0') {
+        const { cmc, saldo, reservado, fisico } = estoqueData;
+        
+        // Valor Unitário
+        const valorFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cmc ?? 0);
+        const valorEstoqueEl = document.createElement('p');
+        valorEstoqueEl.innerHTML = `<strong>Valor Unitário:</strong> ${valorFormatado}`;
+        rightCol.appendChild(valorEstoqueEl);
+
+        // Saldo
+        const saldoEl = document.createElement('p');
+        saldoEl.innerHTML = `<strong>Saldo:</strong> ${saldo ?? 0}`;
+        rightCol.appendChild(saldoEl);
+
+        // Reservado
+        const reservadoEl = document.createElement('p');
+        reservadoEl.innerHTML = `<strong>Reservado:</strong> ${reservado ?? 0}`;
+        rightCol.appendChild(reservadoEl);
+
+        // Físico
+        const fisicoEl = document.createElement('p');
+        fisicoEl.innerHTML = `<strong>Físico:</strong> ${fisico ?? 0}`;
+        rightCol.appendChild(fisicoEl);
+      } else {
+        const valorEstoqueEl = document.createElement('p');
+        valorEstoqueEl.innerHTML = `<strong>Valor Unitário:</strong> (não encontrado)`;
+        rightCol.appendChild(valorEstoqueEl);
+      }
+    } catch (err) {
+      console.error("Erro ao buscar posição de estoque:", err);
+      const valorEstoqueEl = document.createElement('p');
+      valorEstoqueEl.innerHTML = `<strong>Valor Unitário:</strong> (erro ao buscar)`;
+      rightCol.appendChild(valorEstoqueEl);
+    }
+
+    // Insere as duas colunas no contêiner
+    columnsContainer.appendChild(leftCol);
+    columnsContainer.appendChild(rightCol);
+
+    // Adiciona o contêiner de colunas ao clonedCardInfo
+    clonedCardInfo.appendChild(columnsContainer);
+
+    // Se houver características, cria a tabela abaixo das colunas
+    if (omieData.caracteristicas && omieData.caracteristicas.length > 0) {
+      let charTable = document.createElement('table');
+      charTable.style.borderCollapse = 'collapse';
+      charTable.style.marginTop = '20px';
+      charTable.style.width = '100%';
+
+      // Cabeçalho da tabela
       const thead = document.createElement('thead');
       const headRow = document.createElement('tr');
 
@@ -207,8 +246,9 @@ function showCardModal(cardElement, omieData) {
       headRow.appendChild(thCaract);
       headRow.appendChild(thConteudo);
       thead.appendChild(headRow);
-      caractTable.appendChild(thead);
+      charTable.appendChild(thead);
 
+      // Corpo da tabela
       const tbody = document.createElement('tbody');
       omieData.caracteristicas.forEach(c => {
         const row = document.createElement('tr');
@@ -227,13 +267,13 @@ function showCardModal(cardElement, omieData) {
         row.appendChild(tdConteudo);
         tbody.appendChild(row);
       });
-
-      caractTable.appendChild(tbody);
-      clonedCardInfo.appendChild(caractTable);
+      charTable.appendChild(tbody);
+      // Adiciona a tabela de características abaixo das colunas
+      clonedCardInfo.appendChild(charTable);
     }
   }
 
-  // ========== ÍCONE DE SALVAR AO LADO DO H2 (CÓDIGO) ==========
+  // Ícone "Salvar" ao lado do <h2> (código)
   if (h2title) {
     const saveIcon = document.createElement('span');
     saveIcon.id = 'saveIcon';
@@ -243,9 +283,8 @@ function showCardModal(cardElement, omieData) {
     saveIcon.style.display = 'none';
     h2title.appendChild(saveIcon);
 
-    // Clique do "Salvar"
+    // Evento "Salvar"
     saveIcon.addEventListener('click', async () => {
-      // Coleta campos do clone
       const camposEdicao = collectEditsFromCard(clone);
       try {
         const response = await fetch('/api/produtos/alterar', {
@@ -256,6 +295,11 @@ function showCardModal(cardElement, omieData) {
         const data = await response.json();
         if (data.success) {
           alert("Produto atualizado com sucesso!");
+          // Fecha o modo edição após sucesso
+          const isEditing = (clone.querySelector('.card-info p[contentEditable="true"]') !== null);
+          if (isEditing) {
+            toggleEditMode(clone);
+          }
         } else {
           alert("Erro: " + data.error);
         }
@@ -266,11 +310,9 @@ function showCardModal(cardElement, omieData) {
     });
   }
 
-  // ========== MENU FLUTUANTE COM BOTÃO EDITAR ==========
+  // Menu flutuante + Botão Edit
   const floatingMenu = createFloatingButtonMenu();
   container.appendChild(floatingMenu);
-
-  // Botão editar
   const editButton = floatingMenu.querySelector('#editBtn');
   if (editButton) {
     editButton.addEventListener('click', (e) => {
@@ -279,13 +321,10 @@ function showCardModal(cardElement, omieData) {
     });
   }
 
-  // Anexa o clone e exibe modal
   container.appendChild(clone);
   modalBody.appendChild(container);
   modal.style.display = "flex";
 }
-
-
 
 // Fechar modal
 document.querySelector('.card-modal-close').addEventListener('click', () => {
@@ -462,38 +501,111 @@ function toggleEditMode(cardClone) {
   const isCurrentlyEditing = (cardClone.querySelector('.card-info p[contentEditable="true"]') !== null);
   const willEdit = !isCurrentlyEditing;
 
-  // Mostra/esconde o ícone "Salvar"
+  // Mostra/esconde o ícone Salvar
   const saveIcon = cardClone.querySelector('#saveIcon');
   if (saveIcon) {
     saveIcon.style.display = willEdit ? 'inline-block' : 'none';
   }
 
   const paragraphs = cardClone.querySelectorAll('.card-info p');
-  paragraphs.forEach((p) => {
-    // Se está dentro da tabela, não editamos
-    if (p.closest('table')) return;
+  paragraphs.forEach(p => {
+    if (p.closest('table')) return; // não edita tabela
 
-    const isBloqueado = (p.dataset.field === 'bloqueado');
-    const isInativo   = (p.dataset.field === 'inativo');
+    const text = p.innerText.trim();
 
-    if (isBloqueado || isInativo) {
+    // Se for dataInclusao ou dataUltimaAlteracao, pula
+    if (text.startsWith("Data de inclusão:") || text.startsWith("Data da última alteração:")) {
+      return;
+    }
+
+    // Se for "unidade" => <select> com [UN,KG,MT]
+    if (p.dataset.field === 'unidade') {
+      if (willEdit) {
+        enableSelectUnidade(p);
+      } else {
+        disableSelectUnidade(p);
+      }
+      return;
+    }
+
+    // Se for "bloqueado" ou "inativo" => enableSelectSN
+    if (p.dataset.field === 'bloqueado' || p.dataset.field === 'inativo') {
       if (willEdit) {
         enableSelectSN(p);
       } else {
         disableSelectSN(p);
       }
+      return;
+    }
+
+    // Caso geral => contentEditable
+    p.contentEditable = willEdit ? 'true' : 'false';
+    if (p.contentEditable === 'true') {
+      p.style.backgroundColor = 'rgba(255, 255, 0, 0.2)';
+      p.style.outline = '1px dashed #ccc';
     } else {
-      p.contentEditable = willEdit ? 'true' : 'false';
-      if (p.contentEditable === 'true') {
-        p.style.backgroundColor = 'rgba(255, 255, 0, 0.2)';
-        p.style.outline = '1px dashed #ccc';
-      } else {
-        p.style.backgroundColor = '';
-        p.style.outline = '';
-      }
+      p.style.backgroundColor = '';
+      p.style.outline = '';
     }
   });
 }
+
+
+
+function enableSelectUnidade(p) {
+  // Exemplo: p.innerText => "Unidade: UN\nKG\nMT"
+  const textContent = p.innerText; 
+  let currentValue = textContent.split(':')[1]?.trim() || '';
+  
+  // Se houver quebras de linha, pegue apenas a primeira linha
+  if (currentValue.includes('\n')) {
+    currentValue = currentValue.split('\n')[0].trim();
+  }
+
+  // Limpa o conteúdo para recriar o campo
+  p.innerHTML = '';
+
+  // Cria <strong>Unidade:
+  const strongLabel = document.createElement('strong');
+  strongLabel.textContent = "Unidade:"; 
+  p.appendChild(strongLabel);
+  p.appendChild(document.createTextNode(' '));
+
+  // Cria <select> com as 3 opções
+  const select = document.createElement('select');
+  ["UN", "KG", "MT"].forEach(optVal => {
+    const opt = document.createElement('option');
+    opt.value = optVal;
+    opt.text = optVal;
+    select.appendChild(opt);
+  });
+
+  // Seleciona o valor atual, se for válido
+  if (["UN", "KG", "MT"].includes(currentValue)) {
+    select.value = currentValue;
+  }
+
+  // Destaque visual do select
+  select.style.backgroundColor = 'rgba(255, 255, 0, 0.2)';
+  select.style.outline = '1px dashed #ccc';
+
+  p.appendChild(select);
+}
+
+
+function disableSelectUnidade(p) {
+  const strong = p.querySelector('strong');
+  const select = p.querySelector('select');
+  if (!strong || !select) return;
+
+  // Pega a opção que o usuário escolheu
+  const finalValue = select.value; // ex: "KG"
+
+  // Volta para texto normal: "<strong>Unidade:</strong> KG"
+  p.innerHTML = `${strong.outerHTML} ${finalValue}`;
+}
+
+
 
 /** Coleta os campos editados e retorna objeto para AlterarProduto */
 function collectEditsFromCard(cardClone) {
@@ -534,7 +646,12 @@ function getTextOfField(cardClone, label) {
   for (const p of allPs) {
     const text = p.innerText.trim();
     if (text.startsWith(label)) {
-      return text.slice(label.length).trim();
+      let fieldValue = text.slice(label.length).trim();
+      // Se o campo for Unidade, remover quebras de linha e pegar a primeira linha
+      if (label === "Unidade:" && fieldValue.includes('\n')) {
+        fieldValue = fieldValue.split('\n')[0].trim();
+      }
+      return fieldValue;
     }
   }
   return '';
@@ -583,3 +700,22 @@ function disableSelectSN(p) {
   const finalValue = select.value;
   p.innerHTML = `${strong.outerHTML} ${finalValue}`;
 }
+
+
+async function fetchPosicaoEstoque(codigo, dataRef) {
+  try {
+    const response = await fetch('/api/produtos/estoque', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ codigo, data: dataRef })
+    });
+    if (!response.ok) {
+      throw new Error('Erro ao consultar posição de estoque');
+    }
+    return await response.json(); // deve conter { cmc, saldo, reservado, fisico, ... }
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
