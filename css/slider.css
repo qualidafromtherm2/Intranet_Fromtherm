@@ -1,0 +1,215 @@
+/* slider.css */
+
+/*==================
+    Base Styles
+===================*/
+* {
+   box-sizing: border-box;
+}
+
+body {
+   margin: 0;
+   padding: 0;
+}
+
+input[type="radio"] {
+   display: none;
+}
+
+.container {
+   background: rgba(255, 255, 255, 0.25);
+   position: relative;
+   height: 70vh;
+   width: 100%;
+   padding: 2em;
+
+   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+   backdrop-filter: blur(1.5px);
+   -webkit-backdrop-filter: blur(1.5px);
+   display: flex;
+   flex-direction: column;
+   position: relative;
+   cursor: pointer;
+   border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+
+.slide-wrapper {
+   position: relative;
+   margin: 0 auto;
+   padding: 3em;
+   width: 100%;
+   height: 95%;
+   border-radius: 20px;
+   box-shadow: 0px 1px 2px 0px rgb(53, 53, 53);
+   overflow: hidden;
+}
+
+/*==================
+   Slides
+===================*/
+#slide-role {
+   background: inherit;
+   position: absolute;
+   top: 0;
+   left: 0;
+   width: 600%;
+   height: 100%;
+   z-index: 100;
+   transition: left .5s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+   display: flex;
+}
+
+.slide {
+   width: 90%;
+   height: 100%;
+   background-size: cover;
+   background-position: center;
+}
+
+/*===================
+   BUTTONS
+====================*/
+
+
+.btn,
+.btn::after {
+   border-radius: 50%;
+   transition: all .5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+}
+
+.btn {
+   border: 1px solid rgba(0, 0, 0, 0.281);
+   background: rgb(255, 255, 255);
+   box-shadow: 0px 2px 2px rgba(56, 56, 56, 0.822);
+   position: absolute;
+   bottom: 1%;
+   width: 30px;
+   height: 30px;
+   cursor: pointer;
+   transform: scale(1.0);
+   z-index: 1000;
+}
+
+.btn:nth-of-type(1) {
+   left: 10%;
+}
+
+.btn:nth-of-type(2) {
+   left: 25%;
+}
+
+.btn:nth-of-type(3) {
+   left: 40%;
+}
+
+.btn:nth-of-type(4) {
+   left: 55%;
+}
+.btn:nth-of-type(5) {
+   left: 70%;
+}
+
+.btn:nth-of-type(6) {
+   left: 85%;
+}
+
+
+.btn:hover {
+   transform: scale(1.5);
+}
+
+.btn::after {
+   content: "";
+   display: inline-block;
+   border: 1px solid white;
+   background: rgb(11, 185, 238);
+   width: 20px;
+   height: 20px;
+   margin: 3px 3px;
+   transform: scale(.5, .5);
+   box-shadow: 0px 1px 5px rgba(56, 56, 56, 0.822);
+}
+
+/*====================
+       L O G I C 
+===================*/
+
+/* slide logic */
+/* Lógica dos inputs para 6 slides */
+input[type="radio"]:checked#slide-2-trigger ~ .slide-wrapper > #slide-role {
+   left: -100%;
+}
+
+input[type="radio"]:checked#slide-3-trigger ~ .slide-wrapper > #slide-role {
+   left: -200%;
+}
+
+input[type="radio"]:checked#slide-4-trigger ~ .slide-wrapper > #slide-role {
+   left: -300%;
+}
+
+input[type="radio"]:checked#slide-5-trigger ~ .slide-wrapper > #slide-role {
+   left: -400%;
+}
+
+input[type="radio"]:checked#slide-6-trigger ~ .slide-wrapper > #slide-role {
+   left: -500%;
+}
+
+
+
+/* button logic */
+input[type="radio"]:checked + label.btn {
+   transform: scale(1.2);
+   border: 1px solid rgba(53, 53, 53, 0.308);
+}
+
+input[type="radio"]:checked + label.btn::after {
+   transform: scale(1.1, 1.1);
+   background: lightskyblue;
+}
+
+/* Media queries */
+@media only screen and (max-width: 750px) {
+   .slide-wrapper {
+       width: 90%;
+       height: 100%;
+   }
+   .btn:nth-of-type(1) {
+       left: 93%;
+       bottom: 60%;
+   }
+   .btn:nth-of-type(2) {
+       left: 93%;
+       bottom: 50%;
+   }
+   .btn:nth-of-type(3) {
+       left: 93%;
+       bottom: 40%;
+   }
+   .btn:nth-of-type(4) {
+       left: 93%;
+       bottom: 30%;
+   }
+   .btn:nth-of-type(5) {
+      left: 93%;
+      bottom: 20%;
+  }
+  .btn:nth-of-type(6) {
+      left: 93%;
+      bottom: 10%;
+  }
+}
+
+@media only screen and (max-width: 450px) {
+   .btn:nth-of-type(1),
+   .btn:nth-of-type(2),
+   .btn:nth-of-type(3),
+   .btn:nth-of-type(4),
+   .btn:nth-of-type(5),
+   .btn:nth-of-type(6) {
+   
+       left: 91%;
+   }
+}
