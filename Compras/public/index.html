@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controle de Importação - Sistema Fromtherm</title>
+  <!-- Link para o CSS externo -->
+  <link rel="stylesheet" href="styles.css">
+  <!-- Bibliotecas externas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/5.0.6/jquery.inputmask.min.js"></script>
+</head>
+<body>
+  <!-- Aba Inicial -->
+  <div id="homeTab">
+    <!-- Imagem removida -->
+    <h1>Controle de Importação - Sistema Fromtherm</h1>
+    <div class="home-buttons">
+      <button type="button" onclick="enterSystem('importacao')">Controle de Importação</button>
+      <button type="button" onclick="enterSystem('andamento')">Importação em Andamento</button>
+      <button type="button" onclick="enterSystem('contratos')">Controle de Contratos</button>
+    </div>
+  </div>
+  
+  <!-- Conteúdo principal (inicialmente oculto) -->
+  <main>
+    <button type="button" class="close-tab" onclick="closeTab()">Fechar</button>
+    
+    <div id="importacaoTab">
+      <form id="importForm"></form>
+      <div class="navigation-buttons">
+        <button type="button" class="nav-start" onclick="goToFirstRecord()">«</button>
+        <button type="button" onclick="navigateRecord(-1)">Anterior</button>
+        <span id="recordCounter">Registro 1 de 10</span>
+        <button type="button" onclick="navigateRecord(1)">Próximo</button>
+        <button type="button" class="nav-end" onclick="goToLastRecord()">»</button>
+      </div>
+      <div class="action-buttons">
+        <button type="button" onclick="clearForm()">Adicionar Novo Registro</button>
+        <button type="button" onclick="saveData()">Salvar Dados</button>
+        <button type="button" onclick="deleteRecord()">Excluir Registro</button>
+        <!-- Botões PI e CI -->
+        <button type="button" onclick="handlePIFolder()" style="background-color: grey;">PI</button>
+        <button type="button" onclick="handleCIFolder()" style="background-color: grey;">CI</button>
+      </div>
+      <p id="errorMessage" class="error-message" style="display:none;"></p>
+      <!-- Linha do Tempo -->
+      <div class="timeline-wrapper">
+        <div id="timelineContainer"></div>
+      </div>
+      <div id="productsCard" class="card">
+        <div class="card-header">
+          <span>PRODUTOS</span>
+          <button type="button" onclick="hideProductsCard()">Fechar</button>
+        </div>
+        <div class="card-content">
+          <table>
+            <thead>
+              <tr id="productsTableHeaders"></tr>
+            </thead>
+            <tbody id="productsCardRows"></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="marineTrafficContainer"></div>
+      <div id="produtosFormCard" class="card">
+        <div class="card-header">
+          <span>Produtos - Cadastro</span>
+          <button type="button" onclick="closeProdutosFormCard()">Fechar</button>
+        </div>
+        <div id="produtosFormNav">
+          <button type="button" onclick="prevProduct()">Anterior</button>
+          <span id="produtosFormCounter"></span>
+          <button type="button" onclick="nextProduct()">Próximo</button>
+          <button type="button" onclick="newProduct()">Novo Produto</button>
+          <button type="button" onclick="deleteProduct()">Excluir Produto</button>
+        </div>
+        <div class="card-content">
+          <form id="produtosForm"></form>
+          <button type="button" onclick="saveProdutosForm()">Salvar Produtos</button>
+        </div>
+      </div>
+      <!-- Input oculto para upload -->
+      <input type="file" id="fileUpload" style="display:none" onchange="uploadFile(this.files)">
+    </div>
+    
+    <div id="andamentoTab" style="display: none;">
+      <div class="card">
+        <div class="card-header">
+          <span>Importação em Andamento</span>
+          <button type="button" onclick="window.print()">Imprimir</button>
+        </div>
+        <div class="card-content">
+          <table>
+            <thead>
+              <tr id="cardHeaders"></tr>
+            </thead>
+            <tbody id="cardRows"></tbody>
+          </table>
+        </div>
+        <div class="card-footer" id="cardFooter">Saldo a Pagar Total: $0.00</div>
+      </div>
+    </div>
+    
+    <div id="contratosTab" style="display: none;">
+      <div id="contratosCard" class="card">
+        <div class="card-header">
+          <span>Controle de Contratos</span>
+          <button type="button" onclick="clearContratoForm()">Adicionar Novo Contrato</button>
+        </div>
+        <div class="card-content">
+          <form id="contratosForm"></form>
+        </div>
+        <div class="navigation-buttons">
+          <button type="button" onclick="navigateContrato(-1)">Anterior</button>
+          <span id="contratoCounter">Contrato 1 de 1</span>
+          <button type="button" onclick="navigateContrato(1)">Próximo</button>
+        </div>
+        <div class="contrato-nav-buttons">
+          <button type="button" onclick="goToFirstContrato()">«</button>
+          <button type="button" onclick="goToLastContrato()">»</button>
+        </div>
+        <div class="action-buttons">
+          <button type="button" onclick="saveContrato()">Salvar Contrato</button>
+          <button type="button" onclick="deleteContrato()">Excluir Contrato</button>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- Inclusão do JavaScript externo -->
+  <script src="script.js"></script>
+</body>
+</html>

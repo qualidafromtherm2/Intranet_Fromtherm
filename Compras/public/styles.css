@@ -1,0 +1,480 @@
+:root {
+    --primary-color: #004080;
+    --secondary-color: #003060;
+    --background-color: #f4f5f7;
+    --text-color: #333;
+    --error-color: #d9534f;
+  }
+  body {
+    font-family: Arial, sans-serif;
+    background-color: transparent;
+    margin: 0;
+    padding: 0;
+    color: var(--text-color);
+  }
+  
+  
+  /* Aba Inicial */
+  #homeTab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+  }
+  /* Logo centralizada em tamanho maior */
+  .centered-logo {
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 30px;
+  }
+  /* Título da tela inicial */
+  #homeTab h1 {
+    font-size: 32px;
+    margin-bottom: 30px;
+    color: var(--primary-color);
+  }
+  /* Botões da tela inicial */
+  #homeTab .home-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 80%;
+    max-width: 400px;
+  }
+  #homeTab .home-buttons button {
+    padding: 15px;
+    font-size: 16px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  #homeTab .home-buttons button:hover {
+    background-color: var(--secondary-color);
+  }
+  /* Container principal */
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    display: none;
+  }
+  /* Botão Fechar */
+  .close-tab {
+    background-color: var(--error-color);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 15px;
+  }
+  .close-tab:hover {
+    background-color: #c9302c;
+  }
+  /* Estilos dos formulários */
+  form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  label {
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+    display: block;
+  }
+  input, select {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    background-color: #f8f9fb;
+    box-sizing: border-box;
+  }
+  input[readonly] {
+    background-color: #e9ecef;
+    color: #495057;
+  }
+  .navigation-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .navigation-buttons button {
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 16px;
+    color: white;
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .navigation-buttons .nav-start,
+  .navigation-buttons .nav-end {
+    padding: 10px;
+    font-size: 18px;
+  }
+  .navigation-buttons button:hover {
+    background-color: var(--secondary-color);
+  }
+  .action-buttons {
+    margin-top: 20px;
+    text-align: center;
+  }
+  .action-buttons button {
+    padding: 15px 20px;
+    font-size: 16px;
+    color: white;
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 5px;
+  }
+  .action-buttons button:hover {
+    background-color: var(--secondary-color);
+  }
+  .small-nav-btn {
+    padding: 5px 8px;
+    font-size: 18px;
+    width: 40px;
+    height: 40px;
+    line-height: 30px;
+    text-align: center;
+    border-radius: 50%;
+    margin: 5px;
+  }
+  .error-message {
+    color: var(--error-color);
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+  }
+  /* Estilos dos Cards */
+  .card {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 20px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    margin-top: 20px;
+  }
+  .card-header {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card-header button {
+    margin-left: 20px;
+    padding: 5px 10px;
+    font-size: 14px;
+    color: white;
+    background-color: var(--error-color);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .card-header button:hover {
+    background-color: #c9302c;
+  }
+  .card-content {
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-x: auto;
+  }
+  .card-content table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: auto;
+  }
+  .card-content th {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+    background-color: var(--primary-color);
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  .card-content td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+  }
+  .card-content tr:nth-child(even) {
+    background-color: var(--background-color);
+  }
+  .card-content tr:nth-child(odd) {
+    background-color: white;
+  }
+  .card-footer {
+    font-size: 16px;
+    font-weight: bold;
+    text-align: right;
+    padding: 10px;
+    background-color: var(--background-color);
+    border-top: 1px solid #ddd;
+  }
+  /* Container para o iframe do LOCAL NAVIO */
+  #marineTrafficContainer {
+    display: none;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    width: 100%;
+    max-width: 490px;
+    height: 151px;
+  }
+  #marineTrafficContainer iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  /* Card Produtos - Cadastro */
+  #produtosFormCard {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 400px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 20px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    z-index: 1100;
+  }
+  #produtosFormCard .card-header {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  #produtosFormCard .card-header button {
+    padding: 5px 10px;
+    font-size: 14px;
+    color: white;
+    background-color: var(--error-color);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  #produtosFormCard .card-header button:hover {
+    background-color: #c9302c;
+  }
+  /* Navegador interno para Produtos - Cadastro */
+  #produtosFormNav {
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  #produtosFormNav button {
+    padding: 5px 10px;
+    font-size: 14px;
+    margin: 0 3px;
+  }
+  #produtosFormCounter {
+    font-weight: bold;
+    margin: 0 10px;
+  }
+  #produtosFormCard form div {
+    margin-bottom: 10px;
+  }
+  #produtosFormCard form label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  #produtosFormCard form input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+  }
+  .overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 999;
+  }
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000;
+  }
+  .modal-content {
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 5px;
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+  }
+  .close {
+    float: right;
+    cursor: pointer;
+  }
+  #loading {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  /* Campo SALDO PAGAR */
+  input[name="SALDO PAGAR"] {
+    font-weight: bold;
+    color: black;
+  }
+  input[name="SALDO PAGAR"][value]:not([value=""]) {
+    background-color: #ffcccc;
+  }
+  /* Card Controle de Contratos */
+  #contratosCard {
+    margin-top: 30px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  }
+  #contratosCard .card-header {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  #contratosCard .card-content {
+    margin-bottom: 20px;
+  }
+  #contratosCard form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  #contratosCard .navigation-buttons, 
+  #contratosCard .action-buttons {
+    text-align: center;
+    margin-top: 10px;
+  }
+  .contrato-nav-buttons {
+    text-align: center;
+    margin-top: 10px;
+  }
+  .contrato-nav-buttons button {
+    padding: 5px 8px;
+    font-size: 18px;
+    width: 40px;
+    height: 40px;
+    line-height: 30px;
+    text-align: center;
+    border-radius: 50%;
+    margin: 0 5px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  .contrato-nav-buttons button:hover {
+    background-color: var(--secondary-color);
+  }
+  /* Linha do Tempo */
+  .timeline-wrapper {
+    width: 100%;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+  }
+  #timelineContainer {
+    margin: 20px 0;
+    position: relative;
+    height: 40px;
+  }
+  #timeline {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: white;
+    transform: translateY(-50%);
+    z-index: 1;
+  }
+  .timeline-markers {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    transform: translateY(-50%);
+    z-index: 2;
+  }
+  .timeline-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .timeline-ball {
+    width: 16px;
+    height: 16px;
+    background-color: var(--secondary-color);
+    border-radius: 50%;
+    border: 2px solid white;
+  }
+  .timeline-label {
+    font-size: 12px;
+    text-align: center;
+    margin-top: 4px;
+    color: white;
+  }
+  /* Responsividade */
+  @media screen and (max-width: 768px) {
+    main {
+      padding: 20px;
+      margin: 10px;
+    }
+    .navigation-buttons button, .action-buttons button, .small-nav-btn {
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+    form {
+      grid-template-columns: 1fr;
+    }
+    .card {
+      margin-top: 15px;
+      padding: 15px;
+    }
+    .card-header, .card-footer {
+      font-size: 16px;
+    }
+  }
+  
