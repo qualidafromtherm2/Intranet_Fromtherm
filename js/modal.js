@@ -289,45 +289,33 @@ export async function showCardModal(cardElement, omieData) {
       saveIcon.style.display = 'none';
       h2title.appendChild(saveIcon);
   
-      saveIcon.addEventListener('click', async () => {
-        const camposEdicao = collectEditsFromCard(clone);
-        try {
-          const omieResponse = await fetch('/api/produtos/alterar', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(camposEdicao)
-          });
-          const omieData = await omieResponse.json();
-          if (omieData.success) {
-            alert("Produto atualizado na OMIE com sucesso!");
-          } else {
-            alert("Erro ao atualizar na OMIE: " + omieData.error);
-          }
-          const csvResponse = await fetch('/api/produtos/alterarNoCSV', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              codigo: camposEdicao.codigo,
-              descr_detalhada: camposEdicao.descr_detalhada,
-              descricao: camposEdicao.descricao
-            })
-          });
-          const csvData = await csvResponse.json();
-          if (csvData.success) {
-            console.log('CSV atualizado com sucesso!');
-          } else {
-            console.error('Erro ao atualizar CSV:', csvData.error);
-            alert('Erro ao atualizar CSV: ' + csvData.error);
-          }
-          if (clone.querySelector('.card-info p[contentEditable="true"]')) {
-            toggleEditMode(clone);
-          }
-          clone.dataset.characteristicsEditing = "false";
-        } catch (error) {
-          console.error("Erro geral ao salvar:", error);
-          alert("Erro ao salvar alterações");
-        }
-      });
+// Exemplo de envio
+saveIcon.addEventListener('click', async () => {
+  const camposEdicao = collectEditsFromCard(clone);
+  // Insere o array de imagens:
+  camposEdicao.imagens = slides.map(url => ({ url_imagem: url.trim() }));
+  
+  try {
+    const response = await fetch('/api/produtos/alterar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(camposEdicao)
+    });
+    const data = await response.json();
+    if (data.success) {
+      alert("Produto atualizado com sucesso!");
+      // Aqui você pode atualizar a interface, fechar o modal, etc.
+    } else {
+      alert("Erro: " + data.error);
+    }
+  } catch (error) {
+    console.error("Erro ao salvar alterações:", error);
+    alert("Erro ao salvar alterações");
+  }
+});
+
+
+
     }
   
     // Adiciona o menu flutuante
@@ -525,62 +513,162 @@ export async function showCardModal(cardElement, omieData) {
     if (e.target === this) this.style.display = "none";
   });
   
-  // Injeta o HTML do carrossel na área .card-top do clone
-// Injeta o HTML do slider na área .card-top do clone
-// Injeta o HTML do slider na área .card-top do clone
+// Após injetar o HTML do slider na área .card-top:
+// Após injetar o HTML do slider na área .card-top:
 const cardTop = clone.querySelector('.card-top');
 if (cardTop) {
   cardTop.style.position = 'relative';
-  // Obtém o link da imagem a partir do card original (do CSV)
-  const csvImg = cardElement.querySelector('img')?.src || 'img/logo.png';
-  // Se houver múltiplos links separados por vírgula, separe-os; caso contrário, use somente o único link
+
+  // Extrai os links das imagens de omieData (ou usa fallback)
   let slides = [];
-  if (csvImg.includes(',')) {
-    slides = csvImg.split(',');
-  } else {
-    slides.push(csvImg);
+  if (omieData && Array.isArray(omieData.imagens) && omieData.imagens.length > 0) {
+    slides = omieData.imagens.map(item => item.url_imagem);
   }
-  // Se houver menos de 6 links, preenche com "img/logo.png"
+  if (slides.length === 0) {
+    const fallbackImg = cardElement.querySelector('img')?.src || 'img/logo.png';
+    slides.push(fallbackImg);
+  }
   while (slides.length < 6) {
     slides.push('img/logo.png');
   }
-  
-  // Monta o HTML do slider com 6 slides
+
+  // Cria um array temporário que pode ser atualizado (para as alterações)
+  let slidesTemp = [...slides];
+
+  // Monta o HTML do slider com 6 slides, botões com legendas e o botão "Alterar" com ícone de câmera
   cardTop.innerHTML = `
     <div class="container">
-      <!-- BUTTONS (inputs e labels) -->
-      <input type="radio" name="slider" id="slide-1-trigger" class="trigger" checked>
-      <label class="btn" for="slide-1-trigger"></label>
-      <input type="radio" name="slider" id="slide-2-trigger" class="trigger">
-      <label class="btn" for="slide-2-trigger"></label>
-      <input type="radio" name="slider" id="slide-3-trigger" class="trigger">
-      <label class="btn" for="slide-3-trigger"></label>
-      <input type="radio" name="slider" id="slide-4-trigger" class="trigger">
-      <label class="btn" for="slide-4-trigger"></label>
-      <input type="radio" name="slider" id="slide-5-trigger" class="trigger">
-      <label class="btn" for="slide-5-trigger"></label>
-      <input type="radio" name="slider" id="slide-6-trigger" class="trigger">
-      <label class="btn" for="slide-6-trigger"></label>
-
+      <!-- INPUTS ocultos para o slider -->
+  <input type="radio" name="slider" id="slide-1-trigger" class="trigger" checked>
+  <label class="btn" for="slide-1-trigger" title="Produto"></label>
+  <input type="radio" name="slider" id="slide-2-trigger" class="trigger">
+  <label class="btn" for="slide-2-trigger" title="Identificação"></label>
+  <input type="radio" name="slider" id="slide-3-trigger" class="trigger">
+  <label class="btn" for="slide-3-trigger" title="Foto 3"></label>
+  <input type="radio" name="slider" id="slide-4-trigger" class="trigger">
+  <label class="btn" for="slide-4-trigger" title="Foto 4"></label>
+  <input type="radio" name="slider" id="slide-5-trigger" class="trigger">
+  <label class="btn" for="slide-5-trigger" title="Foto 5"></label>
+  <input type="radio" name="slider" id="slide-6-trigger" class="trigger">
+  <label class="btn" for="slide-6-trigger" title="Foto 6"></label>
+      
       <!-- SLIDES -->
       <div class="slide-wrapper">
           <div id="slide-role">
-              <div class="slide slide-1" style="background-image: url('${slides[0].trim()}');"></div>
-              <div class="slide slide-2" style="background-image: url('${slides[1].trim()}');"></div>
-              <div class="slide slide-3" style="background-image: url('${slides[2].trim()}');"></div>
-              <div class="slide slide-4" style="background-image: url('${slides[3].trim()}');"></div>
-              <div class="slide slide-5" style="background-image: url('${slides[4].trim()}');"></div>
-              <div class="slide slide-6" style="background-image: url('${slides[5].trim()}');"></div>
+              ${[0,1,2,3,4,5].map(i => `
+                <div class="slide slide-${i+1}" style="background-image: url('${slides[i].trim()}');">
+                  <button class="update-slide-btn" data-index="${i}" style="position: absolute; bottom: 5px; right: 5px;">
+                    <i class="fa fa-camera"></i>
+                  </button>
+                </div>
+              `).join('')}
           </div>
       </div>
     </div>
   `;
-}
+
+  // Listener para os botões "Alterar"
+  const updateBtns = cardTop.querySelectorAll('.update-slide-btn');
+// Dentro do listener para o botão "Alterar" de cada slide:
+updateBtns.forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const index = btn.getAttribute('data-index');
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/png, image/jpeg, image/bmp';
+    fileInput.style.display = 'none';
+    fileInput.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        // Mostra o spinner (substituindo o conteúdo do botão)
+        btn.innerHTML = `<div><div class="triple-spinner"></div></div>`;
+        reader.onloadend = async () => {
+          // Logs para ver o tamanho do resultado Base64
+          console.log("Tamanho do resultado (total):", reader.result.length);
+          const base64data = reader.result.split(',')[1];
+          console.log("Tamanho da string Base64 (sem prefixo):", base64data.length);
+
+          // Converte o nome do arquivo se for .jpg para .jpeg
+          let fileName = file.name.replace(/\s+/g, '_').replace(/[()]/g, '');
+          if (fileName.toLowerCase().endsWith('.jpg')) {
+            fileName = fileName.slice(0, -4) + '.jpeg';
+          }
+
+          const payload = {
+            fileName,
+            content: base64data
+          };
+
+          try {
+            // Envia o arquivo para o GitHub
+            const response = await fetch('/api/uploadImage', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            if (data.success && data.url) {
+              // Atualiza o slide e o array temporário
+              const slideDiv = cardTop.querySelector(`.slide.slide-${parseInt(index) + 1}`);
+              slideDiv.style.backgroundImage = `url('${data.url}')`;
+              slidesTemp[index] = data.url;
+              alert(`Slide ${parseInt(index) + 1} atualizado no GitHub.`);
+              
+              // Agora, envia a atualização para a Omie:
+              const omiePayload = {
+                codigo: omieData.codigo, // Código do produto
+                imagens: slidesTemp.map(url => ({ url_imagem: url.trim() }))
+              };
+              console.log("=== Payload de atualização de foto para Omie ===");
+              console.log(JSON.stringify(omiePayload, null, 2));
+              try {
+                const respostaOmie = await fetch('/api/produtos/alterar', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(omiePayload)
+                });
+                const dataOmie = await respostaOmie.json();
+                console.log("=== Resposta da atualização na Omie ===");
+                console.log(JSON.stringify(dataOmie, null, 2));
+                if (dataOmie.success) {
+                  alert("Produto atualizado na Omie com sucesso!");
+                } else {
+                  alert("Erro ao atualizar produto na Omie: " + dataOmie.error);
+                }
+              } catch (error) {
+                console.error("Erro na atualização para Omie:", error);
+                alert("Erro ao atualizar produto na Omie. Verifique o console para detalhes.");
+              }
+            } else {
+              alert("Erro no upload da imagem: " + data.error);
+            }
+          } catch (err) {
+            console.error("Erro ao enviar imagem:", err);
+            alert("Erro ao enviar imagem.");
+          } finally {
+            // Restaura o conteúdo do botão para o ícone da câmera
+            btn.innerHTML = `<i class="fa fa-camera"></i>`;
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+    fileInput.click();
+  });
+});
+
+// Listener para o botão "Salvar Foto" (caso você opte por um botão separado)
+// Nesse exemplo, o botão "Salvar Foto" já está integrado no mesmo fluxo acima,
+// mas se você quiser um botão separado, ele pode ser colocado após o slider ser montado.
+
+
+}}
 
 
 
 
-    }
 /* --------------------------------------------------------------------------
    Função: createCharacteristicRow
    Cria uma linha da tabela de características com os dados do objeto c.

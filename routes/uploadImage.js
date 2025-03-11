@@ -4,7 +4,7 @@ const router = express.Router();
 const axios = require('axios');
 
 // Atenção: armazene seu token de acesso de forma segura (por exemplo, em variáveis de ambiente)
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN || 'SEU_GITHUB_TOKEN_AQUI';
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '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';
 const REPO_OWNER = 'qualidafromtherm2';
 const REPO_NAME = 'Intranet_Fromtherm';
 const FILE_PATH = 'img/Produto/';
