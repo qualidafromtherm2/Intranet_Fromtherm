@@ -4,7 +4,7 @@ const router = express.Router();
 const axios = require('axios');
 
 // Atenção: armazene seu token de acesso de forma segura (por exemplo, em variáveis de ambiente)
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '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';
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const REPO_OWNER = 'qualidafromtherm2';
 const REPO_NAME = 'Intranet_Fromtherm';
 const FILE_PATH = 'img/Produto/';
@@ -14,6 +14,7 @@ router.post('/', async (req, res) => {
   if (!fileName || !content) {
     return res.status(400).json({ success: false, error: "Parâmetros ausentes." });
   }
+  
   const fullPath = FILE_PATH + fileName;
   const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${fullPath}`;
   
@@ -26,16 +27,21 @@ router.post('/', async (req, res) => {
     sha = getRes.data.sha;
   } catch (err) {
     // Se não encontrar, prossegue para criar o arquivo
+    console.log("Arquivo não existe, será criado:", fullPath);
   }
   
   const payload = {
     message: sha ? "Atualizando imagem do produto" : "Adicionando imagem do produto",
-    content: content,
-    branch: "master" // Alterado para master
+    content: content, // Deve ser uma string Base64 sem prefixo
+    branch: "master"
   };
   if (sha) {
     payload.sha = sha;
   }
+  
+  // Adicione log do payload para depuração:
+  console.log("Payload enviado para GitHub:", JSON.stringify(payload, null, 2));
+  console.log("Tamanho do content enviado:", payload.content.length);
   
   try {
     await axios.put(url, payload, {

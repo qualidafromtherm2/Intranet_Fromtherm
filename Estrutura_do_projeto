@@ -26,6 +26,8 @@ git add .
 git commit -m "Minhas alterações: atualização do layout do modal, correções e melhorias"
 git push
 
+ git push --force"caso queira forçar o push:"
+
 
 https://codepen.io/kristen17/pen/NPKrxBd // exemplo para card de funncionarios.
 https://codepen.io/cjl750/pen/mXbMyo // exemplo de linha do tempo
@@ -34,4 +36,5 @@ https://codepen.io/leonam-silva-de-souza/pen/vYoazQq // exemplo para login
 https://codepen.io/cbolson/pen/YzmENGy // Para deixar a foto dos aniversariantes do mês
 https://codepen.io/camdenfoucht/pen/BVxawq // spinner de carregamento
 https://codepen.io/leonam-silva-de-souza/pen/MYgQpxp // para utilizar na estrutura de produtos
+https://codepen.io/shivani0805/pen/NWQPBQN // para utilizar na abertura de OP
 

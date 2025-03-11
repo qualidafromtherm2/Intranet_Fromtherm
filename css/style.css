@@ -337,4 +337,9 @@ iframe {
 }
 
 
+.card.locked {
+  /* Exemplo: reduz um pouco a opacidade para indicar bloqueio */
+  opacity: 0.8;
+  /* Você pode adicionar outros estilos, como um ícone ou overlay */
+}
 

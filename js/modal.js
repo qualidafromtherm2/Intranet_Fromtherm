@@ -51,6 +51,27 @@ export function createFloatingButtonMenu() {
   return navDiv;
 }
 
+
+// Função que faz a transição do fundo do card de amarelo para verde em 60 segundos
+function updateCardColor(card) {
+  // Adiciona a classe "locked" (opcional, para efeitos extras)
+  card.classList.add('locked');
+  // Define a transição para o background-color
+  card.style.transition = "background-color 60s linear";
+  // Define o fundo inicial como amarelo
+  card.style.backgroundColor = "yellow";
+  // Após 100ms, inicie a transição para verde
+  setTimeout(() => {
+    card.style.backgroundColor = "green";
+    // Após 60 segundos, remova a indicação de atualização e a classe "locked"
+    setTimeout(() => {
+      delete card.dataset.updating;
+      card.classList.remove('locked');
+    }, 60000);
+  }, 100);
+}
+
+
 /* --------------------------------------------------------------------------
    Função: updateDeleteIcons
    Atualiza ou remove os ícones de exclusão na tabela de características.
@@ -585,24 +606,22 @@ updateBtns.forEach(btn => {
         // Mostra o spinner (substituindo o conteúdo do botão)
         btn.innerHTML = `<div><div class="triple-spinner"></div></div>`;
         reader.onloadend = async () => {
-          // Logs para ver o tamanho do resultado Base64
           console.log("Tamanho do resultado (total):", reader.result.length);
-          const base64data = reader.result.split(',')[1];
+          // Extrai a parte Base64 e remove espaços
+          const base64data = reader.result.split(',')[1].replace(/\s+/g, '');
           console.log("Tamanho da string Base64 (sem prefixo):", base64data.length);
-
-          // Converte o nome do arquivo se for .jpg para .jpeg
+          // Aqui você monta o nome do arquivo
           let fileName = file.name.replace(/\s+/g, '_').replace(/[()]/g, '');
           if (fileName.toLowerCase().endsWith('.jpg')) {
             fileName = fileName.slice(0, -4) + '.jpeg';
           }
-
+          // Monta o payload para upload
           const payload = {
             fileName,
             content: base64data
           };
-
+        
           try {
-            // Envia o arquivo para o GitHub
             const response = await fetch('/api/uploadImage', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -610,37 +629,12 @@ updateBtns.forEach(btn => {
             });
             const data = await response.json();
             if (data.success && data.url) {
-              // Atualiza o slide e o array temporário
+              // Atualiza o background do slide e o array temporário
               const slideDiv = cardTop.querySelector(`.slide.slide-${parseInt(index) + 1}`);
               slideDiv.style.backgroundImage = `url('${data.url}')`;
               slidesTemp[index] = data.url;
               alert(`Slide ${parseInt(index) + 1} atualizado no GitHub.`);
-              
-              // Agora, envia a atualização para a Omie:
-              const omiePayload = {
-                codigo: omieData.codigo, // Código do produto
-                imagens: slidesTemp.map(url => ({ url_imagem: url.trim() }))
-              };
-              console.log("=== Payload de atualização de foto para Omie ===");
-              console.log(JSON.stringify(omiePayload, null, 2));
-              try {
-                const respostaOmie = await fetch('/api/produtos/alterar', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(omiePayload)
-                });
-                const dataOmie = await respostaOmie.json();
-                console.log("=== Resposta da atualização na Omie ===");
-                console.log(JSON.stringify(dataOmie, null, 2));
-                if (dataOmie.success) {
-                  alert("Produto atualizado na Omie com sucesso!");
-                } else {
-                  alert("Erro ao atualizar produto na Omie: " + dataOmie.error);
-                }
-              } catch (error) {
-                console.error("Erro na atualização para Omie:", error);
-                alert("Erro ao atualizar produto na Omie. Verifique o console para detalhes.");
-              }
+              // Em seguida, você pode prosseguir com o envio para a Omie (se aplicável)
             } else {
               alert("Erro no upload da imagem: " + data.error);
             }
@@ -652,6 +646,8 @@ updateBtns.forEach(btn => {
             btn.innerHTML = `<i class="fa fa-camera"></i>`;
           }
         };
+        
+        
         reader.readAsDataURL(file);
       }
     });
@@ -708,3 +704,19 @@ function createCharacteristicRow(c) {
 
   return row;
 }
+
+
+function closeModal() {
+  const modal = document.getElementById('cardModal');
+  modal.style.display = "none";
+  // Se houver um card marcado como "updating", inicia a transição de cor
+  if (window.currentModalCard && window.currentModalCard.dataset.updating === "true") {
+    updateCardColor(window.currentModalCard);
+  }
+}
+
+// Substitua os event listeners existentes por estes:
+document.querySelector('.card-modal-close').addEventListener('click', closeModal);
+document.getElementById('cardModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
